@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{% block title %} {{ uname }} Status {% endblock %}</h1>
+ {% if uname != 'Daddy' and uname != 'Mommy' and uname in data %}
+<h2><b>{{ cdate }}</b> - Chore: <u><b>{{ chores[uname]}}</b></u></h2>
+<br>
+<h2>Current Bedtime: <u><b>{{ bedtime[uname] }}</b></u></h2>
+<br>
+<h2>Work/Ticks:</h2>
+<table>
+    <tr>
+        <td>
+    <div style="display: flex;flex-direction: row; margin-bottom:10px;">
+        <div id="tc_K12" class="toggle-container" style="background-color:{{ '#0a0' if data[uname]['K12'] else '#ccc'}}" onclick="toggleElem('K12')">
+          <div id="tog_K12" class="{{ 'toggle active' if data[uname]['K12'] else 'toggle'}}"></div>
+          <div id="tt_K12" class="toggle-text">{{ 'DONE' if data[uname]['K12'] else 'To Do'}}</div>
+        </div>
+        <span style="margin-left:15px">Finish All <b>K12/Home</b> Work</span>
+    </div>
+
+    <div style="display: flex;flex-direction: row;  margin-bottom:10px">
+        <div id="tc_Supplemental" class="toggle-container" style="background-color:{{ '#0a0' if data[uname]['Supplemental'] else '#ccc'}}" onclick="toggleElem('Supplemental')">
+          <div id="tog_Supplemental" class="{{ 'toggle active' if data[uname]['Supplemental'] else 'toggle'}}"></div>
+          <div id="tt_Supplemental" class="toggle-text">{{ 'DONE' if data[uname]['Supplemental'] else 'To Do'}}</div>
+        </div>
+        <span style="margin-left:15px">Completed <b>Supplemental</b></span>
+    </div>
+
+    <div style="display: flex;flex-direction: row;  margin-bottom:10px">
+        <div id="tc_Attendance" class="toggle-container" style="background-color:{{ '#0a0' if data[uname]['Attendance'] else '#ccc'}}" onclick="toggleElem('Attendance')">
+          <div id="tog_Attendance" class="{{ 'toggle active' if data[uname]['Attendance'] else 'toggle'}}"></div>
+          <div id="tt_Attendance" class="toggle-text">{{ 'DONE' if data[uname]['Attendance'] else 'To Do'}}</div>
+        </div>
+        <span style="margin-left:15px">Completed <b>Attendance</b></span>
+    </div>
+
+    <div style="display: flex;flex-direction: row;  margin-bottom:10px">
+        <div id="tc_IXL" class="toggle-container" style="background-color:{{ '#0a0' if data[uname]['IXL'] else '#ccc'}}" onclick="toggleElem('IXL')">
+          <div id="tog_IXL" class="{{ 'toggle active' if data[uname]['IXL'] else 'toggle'}}"></div>
+          <div id="tt_IXL" class="toggle-text">{{ 'DONE' if data[uname]['IXL'] else 'To Do'}}</div>
+        </div>
+        <span style="margin-left:15px">Finish All <b>IXL</b> Review</span>
+    </div>
+
+    <div style="display: flex;flex-direction: row;  margin-bottom:10px">
+        <div id="tc_KUMON" class="toggle-container" style="background-color:{{ '#0a0' if data[uname]['KUMON'] else '#ccc'}}" onclick="toggleElem('KUMON')">
+          <div id="tog_KUMON" class="{{ 'toggle active' if data[uname]['KUMON'] else 'toggle'}}"></div>
+          <div id="tt_KUMON" class="toggle-text">{{ 'DONE' if data[uname]['KUMON'] else 'To Do'}}</div>
+        </div>
+        <span style="margin-left:15px">Completed <b>KUMON</b></span>
+    </div>
+
+    <div style="display: flex;flex-direction: row;  margin-bottom:10px">
+        <div id="tc_Chore" class="toggle-container" style="background-color:{{ '#0a0' if data[uname]['Chore'] else '#ccc'}}" onclick="toggleElem('Chore')">
+          <div id="tog_Chore" class="{{ 'toggle active' if data[uname]['Chore'] else 'toggle'}}"></div>
+          <div id="tt_Chore" class="toggle-text">{{ 'DONE' if data[uname]['Chore'] else 'To Do'}}</div>
+        </div>
+        <span style="margin-left:15px">Completed All <b>Chores</b></span>
+    </div>
+</td>
+        <td>
+    <div style="display: flex;flex-direction: row; ">
+
+    <div class="pie-chart">
+      <div class="slice" style="background: conic-gradient(
+      #007bff 0deg {{120 if data[uname]['Unfocused']+data[uname]['Fussy']+data[uname]['Issues'] == 0 else (360*data[uname]['Unfocused'])//(data[uname]['Unfocused']+data[uname]['Fussy']+data[uname]['Issues']) }}deg,
+      #28a745 {{120 if data[uname]['Unfocused']+data[uname]['Fussy']+data[uname]['Issues'] == 0 else (360*data[uname]['Unfocused'])//(data[uname]['Unfocused']+data[uname]['Fussy']+data[uname]['Issues']) }}deg {{240 if data[uname]['Unfocused']+data[uname]['Fussy']+data[uname]['Issues'] == 0 else  (360*(data[uname]['Unfocused']+data[uname]['Fussy']))//(data[uname]['Unfocused']+data[uname]['Fussy']+data[uname]['Issues']) }}deg,
+      #ffc107 {{240 if data[uname]['Unfocused']+data[uname]['Fussy']+data[uname]['Issues'] == 0 else  (360*(data[uname]['Unfocused']+data[uname]['Fussy']))//(data[uname]['Unfocused']+data[uname]['Fussy']+data[uname]['Issues']) }}deg 360deg);
+      border-radius: 50%;"></div>
+    <!--  <div class="slice"></div>-->
+    <!--  <div class="slice"></div>-->
+      <div class="center-text">{{ data[uname]['Unfocused']+data[uname]['Fussy']+data[uname]['Issues'] }}</div>
+    </div>
+
+    <div class="legend">
+      <p><b>Tick Count</b></p>
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: #007bff;"></div>
+        Unfocused: <span> &nbsp;<b>{{ data[uname]['Unfocused'] }}</b></span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: #28a745;"></div>
+        Fussy: <span> &nbsp;<b>{{ data[uname]['Fussy'] }}</b></span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: #ffc107;"></div>
+        Issues: <span> &nbsp;<b>{{ data[uname]['Issues'] }}</b></span>
+      </div>
+    </div>
+
+    </div>
+        </td>
+        </tr>
+</table>
+
+ {% endif %}
+ {% if uname == 'Daddy' or uname == 'Mommy' %}
+<h2><b>{{ cdate }}</b> - All Chores</h2>
+<ul>
+    {% for user, chore in chores.items() %}
+    <li><b>{{ user}} </b> - {{ chore }}</li>
+    {% endfor %}
+</ul>
+<h2><u>Work Status</u></h2>
+    <table style="width:950px">
+        <tr style="border-bottom: 1px solid black">
+        <td><b>Name</b></td><td><b>K12/Homework</b></td><td><b>Supplemental</b></td><td><b>Attendance</b></td><td><b>IXL</b></td><td><b>KUMON</b></td><td><b>Chore</b></td><td><b>Verified</b></td>
+        </tr>
+        {% for user in ['FOne','FTwo','FThree','FFour','FFive'] %}
+            <tr style="border-bottom: 1px solid black;">
+                <td style="vertical-align: middle;">{{ user }}</td>
+                <td style="text-align: center; vertical-align: middle;">
+                    <div id="K12_{{user}}_ncom" class="completed"  style="cursor: pointer;display:{{ 'inline' if data[user]['K12'] else 'none'}}" onclick="toggleElem('K12','{{user}}',false)">DONE</div>
+                    <div id="K12_{{user}}_comp" class="not-done" style="cursor: pointer;display:{{ 'none' if data[user]['K12'] else 'inline'}}" onclick="toggleElem('K12','{{user}}',true)">Not Done</div>
+                </td>
+                <td style="text-align: center; vertical-align: middle;">
+                    <div id="Supplemental_{{user}}_ncom" class="completed"  style="cursor: pointer;display:{{ 'inline' if data[user]['Supplemental'] else 'none'}}" onclick="toggleElem('Supplemental','{{user}}',false)">DONE</div>
+                    <div id="Supplemental_{{user}}_comp" class="not-done" style="cursor: pointer;display:{{ 'none' if data[user]['Supplemental'] else 'inline'}}" onclick="toggleElem('Supplemental','{{user}}',true)">Not Done</div>
+                </td>
+                <td style="text-align: center; vertical-align: middle;">
+                    <div id="Attendance_{{user}}_ncom" class="completed"  style="cursor: pointer;display:{{ 'inline' if data[user]['Attendance'] else 'none'}}" onclick="toggleElem('Attendance','{{user}}',false)">DONE</div>
+                    <div id="Attendance_{{user}}_comp" class="not-done" style="cursor: pointer;display:{{ 'none' if data[user]['Attendance'] else 'inline'}}" onclick="toggleElem('Attendance','{{user}}',true)">Not Done</div>
+                </td>
+                <td style="text-align: center; vertical-align: middle;">
+                    <div id="IXL_{{user}}_ncom" class="completed"  style="cursor: pointer;display:{{ 'inline' if data[user]['IXL'] else 'none'}}" onclick="toggleElem('IXL','{{user}}',false)">DONE</div>
+                    <div id="IXL_{{user}}_comp" class="not-done" style="cursor: pointer;display:{{ 'none' if data[user]['IXL'] else 'inline'}}" onclick="toggleElem('IXL','{{user}}',true)">Not Done</div>
+                </td>
+                 <td style="text-align: center; vertical-align: middle;">
+                    <div id="KUMON_{{user}}_ncom" class="completed"  style="cursor: pointer;display:{{ 'inline' if data[user]['KUMON'] else 'none'}}" onclick="toggleElem('KUMON','{{user}}',false)">DONE</div>
+                    <div id="KUMON_{{user}}_comp" class="not-done" style="cursor: pointer;display:{{ 'none' if data[user]['KUMON'] else 'inline'}}" onclick="toggleElem('KUMON','{{user}}',true)">Not Done</div>
+                </td>
+                 <td style="text-align: center; vertical-align: middle;">
+                    <div id="Chore_{{user}}_ncom" class="completed"  style="cursor: pointer;display:{{ 'inline' if data[user]['Chore'] else 'none'}}" onclick="toggleElem('Chore','{{user}}',false)">DONE</div>
+                    <div id="Chore_{{user}}_comp" class="not-done" style="cursor: pointer;display:{{ 'none' if data[user]['Chore'] else 'inline'}}" onclick="toggleElem('Chore','{{user}}',true)">Not Done</div>
+                </td>
+                <td style="text-align: center;">
+                    <button id="verify_btn_{{user}}" class="verify-btn" onclick="verifyWork('{{user}}')"  style="display:{{ 'none' if data[user]['Verified'] else 'inline'}}">Verify</button>
+                    <div id='verify_{{user}}' class="verified" style="display:{{ 'inline' if data[user]['Verified'] else 'none'}}">Verified</div>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+
+
+<br>
+<h2><u>Ticks</u></h2>
+ <table style="width:450px">
+        <tr style="border-bottom: 1px solid black">
+        <td><b>Name</b></td><td><b>Unfocused</b></td><td><b>Fussy</b></td><td><b>Cause Issues</b></td>
+        </tr>
+        {% for user in ['FOne','FTwo','FThree','FFour','FFive'] %}
+            <tr style="border-bottom: 1px solid black;">
+                <td style="vertical-align: middle;">{{ user }}</td>
+                <td style="text-align: center; vertical-align: middle;"><div>
+                  <button class="decrease-btn" onclick="updateMeasure('Unfocused','{{user}}',-1)">-</button>
+                  <span id="cnt_Unfocused_{{user}}">{{ data[user]['Unfocused'] }}</span>
+                  <button class="increase-btn" onclick="updateMeasure('Unfocused','{{user}}',1)">+</button>
+                </div>
+                </td>
+                <td style="text-align: center; vertical-align: middle;"><div>
+                  <button class="decrease-btn" onclick="updateMeasure('Fussy','{{user}}',-1)">-</button>
+                  <span id="cnt_Fussy_{{user}}">{{ data[user]['Fussy'] }}</span>
+                  <button class="increase-btn" onclick="updateMeasure('Fussy','{{user}}',1)">+</button>
+                </div>
+                </td>
+                <td style="text-align: center; vertical-align: middle;"><div>
+                  <button class="decrease-btn" onclick="updateMeasure('Issues','{{user}}',-1)">-</button>
+                  <span id="cnt_Issues_{{user}}">{{ data[user]['Issues'] }}</span>
+                  <button class="increase-btn" onclick="updateMeasure('Issues','{{user}}',1)">+</button>
+                </div>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    <br>
+    <h2><u>Tick Summary</u></h2>
+     <table style="width:450px;text-align: center">
+            <tr style="border-bottom: 1px solid black">
+            <td style="text-align: start"><b>Name</b></td><td><b>Saturday</b></td><td><b>Sunday</b></td><td><b>Monday</b></td><td><b>Tuesday</b></td><td><b>Wednesday</b></td><td><b>Thursday</b></td><td><b>Friday</b></td><td style="border-left: 3px double black"><b>Totals</b></td>
+            </tr>
+            <tr style="border-bottom: 1px solid black">
+                <td style="text-align: start">FOne</td><td>{{totals['FOne'][0]}}</td><td>{{totals['FOne'][1]}}</td><td>{{totals['FOne'][2]}}</td><td>{{totals['FOne'][3]}}</td><td>{{totals['FOne'][4]}}</td><td>{{totals['FOne'][5]}}</td><td>{{totals['FOne'][6]}}</td><td style="border-left: 3px double black">{{totals['FOne'][7]}}</td>
+            </tr>
+            <tr style="border-bottom: 1px solid black">
+                <td style="text-align: start">FTwo</td><td>{{totals['FTwo'][0]}}</td><td>{{totals['FTwo'][1]}}</td><td>{{totals['FTwo'][2]}}</td><td>{{totals['FTwo'][3]}}</td><td>{{totals['FTwo'][4]}}</td><td>{{totals['FTwo'][5]}}</td><td>{{totals['FTwo'][6]}}</td><td style="border-left: 3px double black">{{totals['FTwo'][7]}}</td>
+            </tr>
+            <tr style="border-bottom: 1px solid black">
+                <td style="text-align: start">FThree</td><td>{{totals['FThree'][0]}}</td><td>{{totals['FThree'][1]}}</td><td>{{totals['FThree'][2]}}</td><td>{{totals['FThree'][3]}}</td><td>{{totals['FThree'][4]}}</td><td>{{totals['FThree'][5]}}</td><td>{{totals['FThree'][6]}}</td><td style="border-left: 3px double black">{{totals['FThree'][7]}}</td>
+            </tr>
+            <tr style="border-bottom: 1px solid black">
+                <td style="text-align: start">FFour</td><td>{{totals['FFour'][0]}}</td><td>{{totals['FFour'][1]}}</td><td>{{totals['FFour'][2]}}</td><td>{{totals['FFour'][3]}}</td><td>{{totals['FFour'][4]}}</td><td>{{totals['FFour'][5]}}</td><td>{{totals['FFour'][6]}}</td><td style="border-left: 3px double black">{{totals['FFour'][7]}}</td>
+            </tr>
+            <tr style="border-bottom: 3px double black">
+                <td style="text-align: start">FFive</td><td>{{totals['FFive'][0]}}</td><td>{{totals['FFive'][1]}}</td><td>{{totals['FFive'][2]}}</td><td>{{totals['FFive'][3]}}</td><td>{{totals['FFive'][4]}}</td><td>{{totals['FFive'][5]}}</td><td>{{totals['FFive'][6]}}</td><td style="border-left: 3px double black">{{totals['FFive'][7]}}</td>
+            </tr>
+            <tr style="border-bottom: 1px solid black">
+                <td style="text-align: start">Totals</td><td>{{totals['Total'][0]}}</td><td>{{totals['Total'][1]}}</td><td>{{totals['Total'][2]}}</td><td>{{totals['Total'][3]}}</td><td>{{totals['Total'][4]}}</td><td>{{totals['Total'][5]}}</td><td>{{totals['Total'][6]}}</td><td style="border-left: 3px double black">{{totals['Total'][7]}}</td>
+            </tr>
+     </table>
+    <br>
+    <h2><u>Bedtimes</u></h2>
+    <ul>
+        <li><b>FOne:</b> - {{ bedtime['FOne']}}</li>
+        <li><b>FTwo:</b> - {{ bedtime['FTwo']}}</li>
+        <li><b>FThree:</b> - {{ bedtime['FThree']}}</li>
+        <li><b>FFour:</b> - {{ bedtime['FFour']}}</li>
+        <li><b>FFive:</b> - {{ bedtime['FFive']}}</li>
+    </ul>
+
+
+
+{% endif %}
+<br>
+<br>
+<br>
+{% endblock %}

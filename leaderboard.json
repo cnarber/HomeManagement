@@ -1,0 +1,25 @@
+{
+    "Multiplication": [
+        {
+            "id": "e9aa5d8d-7278-4e42-9e00-37ca2c616f43_3rd",
+            "user": "Alice",
+            "score": "00:03:30",
+            "grade": "3rd",
+            "num_wrong": 0
+        },
+        {
+            "id": "35543d8a-596b-4b01-ab97-fd83d719a537_3rd",
+            "user": "Alice",
+            "score": "00:04:15",
+            "grade": "3rd",
+            "num_wrong": 0
+        },
+        {
+            "id": "c0db93b4-6ee5-462a-8a56-be58e3c07d41_3rd",
+            "user": "Bob",
+            "score": "00:06:02",
+            "grade": "3rd",
+            "num_wrong": 0
+        }
+    ]
+}

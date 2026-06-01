@@ -1,0 +1,47 @@
+<div class="mt-4">
+    <div class="row align-items-center mb-4">
+        <div class="col-md-6">
+            <label for="gradeSelect" class="form-label">Select Grade Level:</label>
+            <select class="form-select" id="gradeSelect">
+                <option value="3rd">3rd Grade</option>
+                <option value="4th">4th Grade</option>
+                <option value="5th">5th Grade</option>
+                <option value="6th">6th Grade</option>
+                <option value="all">All Grades</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="leaderboard-section">
+        <h3>Leaderboard</h3>
+        <p class="text-muted">Leaderboard for selected grade and question type.</p>
+
+        <div id="leaderboardData">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>User</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Alice</td>
+                        <td>950</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Bob</td>
+                        <td>880</td>
+                    </tr>
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <button class="btn btn-success start-button">
+        Start Questions
+    </button>
+</div>

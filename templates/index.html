@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %} Family Portal! {% endblock %}</h1>
+<br>
+    <h4> Playing: <b id="songname">SampleDing</b></h4>
+    <table style="width:100%">
+        <tr><td  valign="top">
+    <audio id="audio" controls style="width:100%; margin-top:10px">
+      <source id="audioSource" src="./static/songs/SampleDing.MP3" type="audio/mpeg">
+    Your browser does not support the audio element.
+    </audio>
+            </td>
+            <td style="width:50%">
+                <div style="height:150px; overflow-y:scroll; border:1px solid black">
+                    <ul >
+                        {% for music in music_files %}
+                            <li>
+                                <span style="cursor:pointer;color:blue" onclick="play_music('{{ music }}');" >{{ music }} </span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </td>
+    </tr>
+    </table>
+<br>
+<h4><b>Timer/Stopwatch</b></h4>
+
+<label for="alarmCheckbox" style="font-size:1.5em">Set Alarm:</label>
+<input type="checkbox" id="alarmCheckbox" style="font-size:1.5em;margin-left:10px">
+
+<div style="display: grid; font-size:1.5em ">
+<label for="timeInput" style="grid-row:1"></label>
+<input disabled=true type="number" id="timeInput" min="1" max="60" style="grid-row:1" value="10" required><br><br>
+
+<label for="unitSelect" style="grid-row:1; margin-left:50px">Units:</label>
+<select disabled=true  id="unitSelect" style="grid-row:1">
+  <option value="hour">Hour(s)</option>
+  <option value="minute" selected>Minute(s)</option>
+  <option value="second">Second(s)</option>
+</select>
+    <div style="grid-row:1"></div>
+</div>
+
+<table>
+    <tr>
+    <td>
+        <div id="timerDisplay" style="font-size: 10em;font-family: monospace;margin-top:-30px;margin-right:10px">00:00:00</div>
+    </td>
+
+  <td style="display: flex;flex-direction: column; ">
+  <button id="timerStart" style="font-size: 2em;font-family: monospace; margin:4px; border-radius: 5px;">Start</button>
+  <button disabled=true id="timerStop" style="font-size: 2em;font-family: monospace; margin:4px; border-radius: 5px;">Pause</button>
+  <button id="timerReset" style="font-size: 2em;font-family: monospace; margin:4px; border-radius: 5px;">Reset</button>
+  </td>
+    </tr>
+</table>
+
+<audio id="alarmSound" src="./static/misc/alarm.wav" preload="auto" style="display: none;"></audio>
+
+<!--    {% for post in posts %}-->
+<!--        <a href="{{ url_for('post', post_id=post['id']) }}">-->
+<!--            <h2>{{ post['title'] }}</h2>-->
+<!--        </a>-->
+<!--        <span class="badge badge-primary">{{ post['created'] }}</span>-->
+<!--        <a href="{{ url_for('edit', id=post['id']) }}">-->
+<!--            <span class="badge badge-warning">Edit</span>-->
+<!--        </a>-->
+<!--        <hr>-->
+<!--    {% endfor %}-->
+{% endblock %}

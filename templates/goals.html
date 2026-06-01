@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>{% block title %} {{ uname }} Status {% endblock %}</h2>
+ {% if uname != 'Parent' and uname in data %}
+
+ {% endif %}
+ {% if uname == 'Parent' %}
+   <div class="tab-interface">
+   <div role="tablist" class="tab-list">
+     {% for user in ['FOne','FTwo','FThree','FFour','FFive'] %}
+     <button role="tab" aria-selected="true" aria-controls="panel-{{ user }}" id="tab-{{ user }}" class="tab-button">{{ user }}</button>
+     {% endfor %}
+   </div>
+   {% for user in ['FOne','FTwo','FThree','FFour','FFive'] %}
+   <div id="panel-{{ user }}" role="tabpanel" aria-labelledby="tab-{{ user }}" class="tab-panel">
+       <table>
+       {% for help_name in kid_help[user] %}
+           <tr><td valign="center">{{ help_name }}</td>
+               <td>
+                    <div id="tc_{{user}}_{{help_name}}" class="toggle-container" style="background-color:{{ '#0a0' if kid_help[user][help_name] else '#ccc'}}" onclick="toggleHelpElem('{{user}}_{{help_name}}')">
+                      <div id="tog_{{user}}_{{help_name}}" class="{{ 'toggle active' if kid_help[user][help_name] else 'toggle'}}"></div>
+                      <div id="tt_{{user}}_{{help_name}}" class="toggle-text">{{ 'DONE' if kid_help[user][help_name] else 'Not Done'}}</div>
+                    </div>
+               </td>
+           </tr>
+       {% endfor %}
+    <tr>
+      <td colspan="3" class="horizontal-line"></td>
+    </tr>
+   <tr>
+      <td colspan="3" class="horizontal-line"></td>
+    </tr>
+       {% for bad_name in kid_bad[user] %}
+           <tr><td valign="center">{{ bad_name }}</td>
+               <td>
+                    <div id="tc_{{user}}_{{bad_name}}" class="toggle-container" style="background-color:{{ '#a00' if kid_bad[user][bad_name] else '#0a0'}}" onclick="toggleBadElem('{{user}}_{{bad_name}}')">
+                      <div id="tog_{{user}}_{{bad_name}}" class="{{ 'toggle active' if kid_bad[user][bad_name] else 'toggle'}}"></div>
+                      <div id="tt_{{user}}_{{bad_name}}" class="toggle-text">{{ 'BAD' if kid_bad[user][bad_name] else 'Good'}}</div>
+                    </div>
+               </td>
+           </tr>
+       {% endfor %}
+
+       </table>
+
+   </div>
+    {% endfor %}
+ </div>
+ {% endif %}
+<br>
+<br>
+<br>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{% block title %} Movie List {% endblock %}</h1>
+
+<div style="display: grid; font-size:1.5em ">
+    {% for filter in filters %}
+    <a style="grid-row:1" href="{{ '/movies?q=' ~ filter }}">{{ filter }}</a>
+    {% endfor %}
+</div>
+<table>
+    <tr style="border-bottom: 1px solid black">
+        <td></td><td><b>Name</b></td><td><b>Requests</b></td>
+    </tr>
+    {% for movie in movies %}
+    <tr style="border-bottom: 1px solid black;">
+        <td><img src="{{ movie['thumbnail'] }}" style="width:100px"></td>
+        <td style="width:300px;font-size:1.5em"><b>{{ movie['name'] }}</b>
+            <br>
+        <button class="requestBtn" onclick="requestWatch({{ movie['id'] }})">Request Watch</button></td>
+        <td id="movie{{ movie['id'] }}" style="font-size:1.5em">{{ movie['requests'] }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

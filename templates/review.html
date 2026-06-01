@@ -1,0 +1,511 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{% block title %} Review Questions Dashboard {% endblock %}</h1>
+
+    <div class="tab-buttons">
+        <button class="tab-button active" onclick="openTab(event, 'multiplication')" data-tab-name="multiplication">Multiplication</button>
+        <button class="tab-button" onclick="openTab(event, 'division')" data-tab-name="division">Division</button>
+        <button class="tab-button" onclick="openTab(event, 'vocabulary')" data-tab-name="vocabulary">Vocabulary</button>
+        <button class="tab-button" onclick="openTab(event, 'other')" data-tab-name="other">Other</button>
+    </div>
+    <div id="leader_choice_panel">
+        <div id="multiplication" class="tab-content-pane active">
+            <h2>Multiplication Questions</h2>
+            <div class="grade-select-section">
+                <label for="multiplication-grade-select">Select Grade Level:</label>
+                <select id="multiplication-grade-select" onchange="switchLeader('multiplication',event)">
+                    <option value="3rd">3rd Grade</option>
+                    <option value="4th">4th Grade</option>
+                    <option value="5th">5th Grade</option>
+                </select>
+            </div>
+            <div class="leaderboard">
+                <h3>Leaderboard (Multiplication)</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Time</th>
+                            <th>Num Wrong</th>
+                        </tr>
+                    </thead>
+                    <tbody id="multiplication_leaderboard">
+                        {% for record in leaderboard["Multiplication"] %}
+                        <tr name='lead_multiplication' id='multiplication_{{record["id"]}}'><td>{{record["user"]}}</td><td>{{record["score"]}}</td><td>{{record["num_wrong"]}}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <button class="start-button" onclick="renderQuestions('multiplication')">Start Multiplication Questions</button>
+        </div>
+
+        <div id="division" class="tab-content-pane">
+            <h2>Division Questions</h2>
+            <div class="grade-select-section">
+                <label for="division-grade-select">Select Grade Level:</label>
+                <select id="division-grade-select">
+                    <option value="3rd">3rd Grade</option>
+                    <option value="4th">4th Grade</option>
+                    <option value="5th">5th Grade</option>
+                </select>
+            </div>
+            <div class="leaderboard">
+                <h3>Leaderboard (Division)</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>User</th>
+                            <th>Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1</td><td>User C</td><td>890</td></tr>
+                        <tr><td>2</td><td>User D</td><td>780</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <button class="start-button">Start Division Questions</button>
+        </div>
+
+        <div id="vocabulary" class="tab-content-pane">
+            <h2>Vocabulary Questions</h2>
+            <div class="grade-select-section">
+                <label for="vocabulary-grade-select">Select Grade Level:</label>
+                <select id="vocabulary-grade-select">
+                    <option value="3rd">3rd Grade</option>
+                    <option value="4th">4th Grade</option>
+                    <option value="5th">5th Grade</option>
+                </select>
+            </div>
+            <div class="leaderboard">
+                <h3>Leaderboard (Vocabulary)</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>User</th>
+                            <th>Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1</td><td>User E</td><td>1100</td></tr>
+                        <tr><td>2</td><td>User F</td><td>1020</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <button class="start-button" >Start Vocabulary Questions</button>
+        </div>
+    </div>
+
+    <div id="other" class="tab-content-pane">
+        <h2>Other Questions</h2>
+        <div class="grade-select-section">
+            <label for="other-grade-select">Select Grade Level:</label>
+            <select id="other-grade-select">
+                <option value="3rd">3rd Grade</option>
+                <option value="4th">4th Grade</option>
+                <option value="5th">5th Grade</option>
+            </select>
+        </div>
+        <div class="leaderboard">
+            <h3>Leaderboard (Other)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>User</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>1</td><td>User G</td><td>700</td></tr>
+                    <tr><td>2</td><td>User H</td><td>650</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <button class="start-button">Start Other Questions</button>
+    </div>
+
+    <div class="quiz-container">
+        <div id="quiz-area" style="display:none">
+            <h1>Questions</h1>
+            <div id="main-quest-area"></div>
+            <div id="navigation">
+                <div class="navigation-buttons">
+                    <button id="prevButton" onclick="showPreviousQuestion()" style="display: none;">Previous</button>
+                    <button id="nextButton" onclick="showNextQuestion()">Next</button>
+                    <button id="submitButton" onclick="submitQuiz()" style="display: none;">Submit</button>
+                </div>
+            </div>
+            <br>
+            <div class="progress-container">
+                <span>Progress...</span>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="customProgressBarFill">0%</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="results" style="display: none;">
+            <h3>Thank you for reviewing!</h3>
+            <p><span id="quest-performance"></span></p>
+            <ul id="response-list"></ul>
+        </div>
+</div>
+</div>
+
+<script>
+    // JavaScript function to handle tab switching
+    function switchLeader(tab, event) {
+        tabcontent = document.getElementsByName(tab);
+        for (i = 0; i < tabcontent.length; i++) {
+            const parts = tabcontent[i].id.split("_");
+            if(parts[parts.length-1]===event.target.value){
+                tabcontent[i].style.removeProperty('display');
+            } else {
+                tabcontent[i].style.display = 'none';
+            }
+        }
+    }
+    window.onload = function() {
+        switchLeader("multiplication",{"target":{"value":"3rd"}});
+    };
+    function openTab(event, tabName) {
+        let i, tabcontent, tablinks;
+
+        // 1. Get all elements with class="tab-content-pane" and hide them
+        tabcontent = document.getElementsByClassName("tab-content-pane");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].classList.remove("active");
+        }
+
+        // 2. Get all elements with class="tab-button" and remove the "active" class
+        tablinks = document.getElementsByClassName("tab-button");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].classList.remove("active");
+        }
+
+        // 3. Show the current tab, and add an "active" class to the button that opened the tab
+        document.getElementById(tabName).classList.add("active");
+        event.currentTarget.classList.add("active");
+    }
+
+    // Define the questions and their options
+    let questions = [];
+    let current_qset = null;
+
+    let currentQuestionIndex = 0;
+    const userResponses = {};
+
+    const quizArea = document.getElementById('quiz-area');
+    const resultsArea = document.getElementById('results');
+    const nextButton = document.getElementById('nextButton');
+    const prevButton = document.getElementById('prevButton');
+    const submitButton = document.getElementById('submitButton');
+
+    // Function to render the questions dynamically
+    function renderQuestions(qtype) {
+        startProgress();
+        for (const key in userResponses) {
+            if (userResponses.hasOwnProperty(key)) { // Ensure it's an own property, not inherited
+                delete userResponses[key];
+            }
+        }
+        currentQuestionIndex = 0;
+        const grade_option = document.getElementById(qtype+'-grade-select');
+        current_qset = qtype+"_"+grade_option.value
+        fetch('/getquestions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({'question_set':current_qset})
+          })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            response.json().then(data => {
+                questions = data.questions
+                showQuestionPanel();
+        });
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+    }
+
+    function questKeyPress(question, event){
+        if (event.key === 'Enter' || event.keyCode === 13) {
+            if (currentQuestionIndex < questions.length - 1) {
+                showNextQuestion();
+            } else {
+                submitQuiz();
+            }
+        }
+    }
+
+    function showQuestionPanel(){
+        const leader_panel = document.getElementById('leader_choice_panel');
+        leader_panel.style.display = 'none';
+
+        const quizArea = document.getElementById('quiz-area');
+        quizArea.style.removeProperty('display');
+
+        const mainQuestArea = document.getElementById('main-quest-area');
+        mainQuestArea.innerHTML = '';
+
+        questions.forEach((q, index) => {
+            let optionsHtml = '';
+
+            if (q.type === "multiple_choice") {
+                q.options.forEach(option => {
+                    optionsHtml += `
+                        <label>
+                            <input type="radio" name="answer-${q.id}" value="${option}">
+                            ${option}
+                        </label>
+                    `;
+                });
+
+            } else if (q.type === "text_input") {
+                optionsHtml = `
+                    <textarea name="answer-${q.id}" rows="4" placeholder="Type your answer here..." style="width: 100%; padding: 10px;"></textarea>
+                `;
+            } else if (q.type === "field_input") {
+                optionsHtml = `
+                    <input type="text" name="answer-${q.id}" placeholder="Type your answer here..." style="width: 100%; padding: 10px;" onkeydown="questKeyPress('${q.id}',event)">
+                `;
+            }
+
+            mainQuestArea.innerHTML += `
+                <div class="question-section" id="question-${index}">
+                    <h2>${q.question}</h2>
+                    <div class="options">
+                        ${optionsHtml}
+                    </div>
+                </div>
+            `;
+        });
+
+        // Initialize by showing the first question
+        showQuestion(currentQuestionIndex);
+    }
+
+    // Function to display a specific question
+    function showQuestion(index) {
+
+        updateProgress((100*(index))/questions.length);
+        // Hide all questions
+        document.querySelectorAll('.question-section').forEach(section => {
+            section.classList.remove('active');
+        });
+
+        clearUserResponse(index);
+
+
+        // Show the specific question
+        const currentQuestionElement = document.getElementById(`question-${index}`);
+        if (currentQuestionElement) {
+            currentQuestionElement.classList.add('active');
+        }
+
+        const ans_elements = document.getElementsByName(`answer-q${index+1}`);
+        if(ans_elements){
+            for(const currentAnswerElement of ans_elements){
+                currentAnswerElement.focus();
+            }
+        }
+
+        // Update button visibility
+        prevButton.style.display = index === 0 ? 'none' : 'inline-block';
+
+        if (index === questions.length - 1) {
+            nextButton.style.display = 'none';
+            submitButton.style.display = 'inline-block';
+        } else {
+            nextButton.style.display = 'inline-block';
+            submitButton.style.display = 'none';
+        }
+
+        // Restore previous answer if it exists
+        restoreUserResponse(index);
+    }
+
+    // Save the user's response for the current question
+    function saveResponse(index) {
+        const questionId = questions[index].id;
+        let answer = '';
+
+        if (questions[index].type === "multiple_choice") {
+            const selectedOption = document.querySelector(`input[name="answer-${questionId}"]:checked`);
+            if (selectedOption) {
+                answer = selectedOption.value;
+            }
+        } else if (questions[index].type === "text_input") {
+            const textarea = document.querySelector(`textarea[name="answer-${questionId}"]`);
+            if (textarea) {
+                answer = textarea.value.trim();
+            }
+        }  else if (questions[index].type === "field_input") {
+            const tinput = document.querySelector(`input[name="answer-${questionId}"]`);
+            answer = tinput.value;
+        }
+
+        userResponses[questionId] = answer;
+    }
+
+
+    function clearUserResponse(index) {
+        const questionId = questions[index].id;
+        const savedAnswer = userResponses[questionId];
+
+        if (questions[index].type === "multiple_choice") {
+            const radio = document.querySelector(`input[name="answer-${questionId}"][value="${savedAnswer}"]`);
+            if (radio) {
+                radio.checked = false;
+            }
+        } else if (questions[index].type === "text_input") {
+            const textarea = document.querySelector(`textarea[name="answer-${questionId}"]`);
+            if (textarea) {
+                textarea.value = "";
+            }
+        } else if (questions[index].type === "field_input") {
+            const tinput = document.querySelector(`input[name="answer-${questionId}"]`);
+            tinput.value = "";
+        }
+    }
+
+
+    // Restore the user's response when navigating back
+    function restoreUserResponse(index) {
+        const questionId = questions[index].id;
+        const savedAnswer = userResponses[questionId];
+
+        if (savedAnswer) {
+            if (questions[index].type === "multiple_choice") {
+                const radio = document.querySelector(`input[name="answer-${questionId}"][value="${savedAnswer}"]`);
+                if (radio) {
+                    radio.checked = true;
+                }
+            } else if (questions[index].type === "text_input") {
+                const textarea = document.querySelector(`textarea[name="answer-${questionId}"]`);
+                if (textarea) {
+                    textarea.value = savedAnswer;
+                }
+            } else if (questions[index].type === "field_input") {
+                const tinput = document.querySelector(`input[name="answer-${questionId}"]`);
+                tinput.value = savedAnswer;
+            }
+        }
+    }
+
+    // Navigate to the next question
+    function showNextQuestion() {
+        saveResponse(currentQuestionIndex);
+
+        if (currentQuestionIndex < questions.length - 1) {
+            currentQuestionIndex++;
+            showQuestion(currentQuestionIndex);
+        }
+    }
+
+    // Navigate to the previous question
+    function showPreviousQuestion() {
+        saveResponse(currentQuestionIndex);
+
+        if (currentQuestionIndex > 0) {
+            currentQuestionIndex--;
+            showQuestion(currentQuestionIndex);
+        }
+    }
+
+    // Submit the questionnaire and display results
+    function submitQuiz() {
+        const leader_panel = document.getElementById('leader_choice_panel');
+        leader_panel.style.removeProperty('display');
+        saveResponse(currentQuestionIndex);
+
+        quizArea.style.display = 'none';
+        resultsArea.style.display = 'block';
+
+        const responseList = document.getElementById('response-list');
+        responseList.innerHTML = ''; // Clear previous results
+
+        let wrong_answers = [];
+
+        questions.forEach(q => {
+            const response = ""+userResponses[q.id] || "No response provided.";
+            if(response!==""+q.answer){
+                wrong_answers.push({"question":q.question,"response":response,"actual":q.answer})
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `<strong>${q.question} <span style="color:green;margin:0 5px;">${q.answer}</span></strong>  <i>(Your Answer: <strong><span style="color:red">${response}</span></strong>)</i>`;
+                responseList.appendChild(listItem);
+            }
+        });
+
+        const perf_value = document.getElementById('quest-performance');
+        if(wrong_answers.length===0){
+            perf_value.innerHTML = '<b> PERFECT 100% - GREAT WORK!</b>';
+        } else {
+            perf_value.innerHTML = '<b> '+wrong_answers.length+' Wrong</b>, Your responses:';
+        }
+
+
+        fetch('/submitquestions', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({'question_set':current_qset,'wrong':wrong_answers})
+              })
+              .then(response => {
+                if (!response.ok) {
+                  throw new Error('Network response was not ok');
+                }
+                response.json().then(data => {
+                    const leaderboard = document.getElementById(current_qset.split("_")[0]+'_leaderboard');
+                    leaderboard.innerHTML = '';
+
+                    for(const record of data.data){
+                        const listItem = document.createElement('tr');
+                        listItem.innerHTML = `<td>${record["user"]}</td><td>${record["score"]}</td><td>${record["num_wrong"]}</td>`;
+                        listItem.name = 'lead_multiplication';
+                        listItem.id = `multiplication_${record["id"]}`;
+                        if(record['id']===data.leader_id){
+                            listItem.style.backgroundColor = '#FFD700';
+                        }
+                        leaderboard.appendChild(listItem);
+                    }
+            });
+          })
+          .catch(error => {
+            console.error('Error:', error);
+          });
+    }
+
+        const customProgressBarFill = document.getElementById('customProgressBarFill');
+        let customCurrentValue = 0;
+        let customIntervalId;
+
+        function updateProgress(customCurrentValue) {
+            if (customCurrentValue == 100) {
+                clearInterval(customIntervalId);
+                customProgressBarFill.textContent = "Done! ✅";
+            } else {
+                customProgressBarFill.style.width = `${customCurrentValue}%`;
+                customProgressBarFill.textContent = `${customCurrentValue}%`;
+            }
+        }
+
+        function startProgress() {
+            customCurrentValue = 0;
+            customProgressBarFill.style.width = '0%';
+            customProgressBarFill.textContent = '0%';
+        }
+
+</script>
+
+{% endblock %}

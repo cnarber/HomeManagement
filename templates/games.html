@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{% block title %} Board Game List {% endblock %}</h1>
+
+<div style="display: grid; font-size:1.5em ">
+    {% for filter in filters %}
+    <a style="grid-row:1" href="{{ '/games?q=' ~ filter }}">{{ filter }}</a>
+    {% endfor %}
+</div>
+<table>
+    <tr style="border-bottom: 1px solid black">
+        <td></td><td><b>Name</b></td><td><b>Players</b></td><td><b>Est Playing Time</b></td><td><b>Ratings</b></td><td><b>Requests</b></td>
+    </tr>
+    {% for game in games %}
+    <tr style="border-bottom: 1px solid black;">
+        <td><img src="{{ game['thumbnail'] }}" style="width:200px"></td>
+        <td style="width:300px;font-size:1.5em"><b>{{ game['name'] }}</b>
+            <br>
+        <button class="requestBtn" onclick="requestPlay({{ game['id'] }})">Request Play</button></td>
+        <td>Players {{ game['minplayers'] }} - {{ game['maxplayers'] }}</td>
+        <td>{{ game['playingtime'] }} Minutes</td>
+        <td></td>
+        <td id="game{{ game['id'] }}" style="font-size:1.5em">{{ game['requests'] }}
+            {% if is_lh %}
+                <button style="margin-left:10px" class="requestBtn" onclick="wasPlayed({{ game['id'] }})">Played</button>
+            {% endif %}
+        </td>
+<!--        <td>{{ game['bgg_score'] }}, {{ game['user_score'] }}</td>-->
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="stylesheet" href="./static/css/style.css">
+    <title>{% block title %} Family Portal {% endblock %}</title>
+  </head>
+  <body>
+<nav class="navbar navbar-expand-md navbar-light bg-light">
+    <a class="navbar-brand" href="{{ url_for('index')}}">Home Page</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+        <li class="nav-item">
+            <a class="nav-link" href="/calendar">Calendar</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/goals">Goals</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/ticks">Tick/Reward</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/review">Review Questions</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/games">Board Games</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/movies">Movies</a>
+        </li>
+        <li class="nav-item">
+            <span class="nav-link" style="cursor:pointer" onclick="sendHelp();">HELP!</span>
+        </li>
+        </ul>
+    </div>
+</nav>
+<div class="container">
+    {% for message in get_flashed_messages() %}
+        <div class="alert alert-danger">{{ message }}</div>
+    {% endfor %}
+    {% block content %} {% endblock %}
+</div>
+<script>
+function sendHelp() {
+  fetch('/help', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: {}
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    alert("Help Requested");
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+}
+
+function requestPlay(game_id) {
+  fetch('/requestplay', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({'game_id':game_id})
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    response.json().then(data => {
+        if(data.added){
+            var element = document.getElementById("game"+data.id);
+            element.textContent = data.count;
+        }
+    });
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+}
+
+
+function wasPlayed(game_id) {
+  fetch('/playedgame', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({'game_id':game_id})
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    response.json().then(data => {
+        if(data.removed){
+            var element = document.getElementById("game"+data.id);
+            element.textContent = 0;
+        }
+    });
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+}
+
+function requestWatch(movie_id) {
+  fetch('/requestwatch', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({'movie_id':movie_id})
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    response.json().then(data => {
+        if(data.added){
+            var element = document.getElementById("movie"+data.id);
+            element.textContent = data.count;
+        }
+    });
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+}
+
+
+function play_music(file){
+  var audio = document.getElementById('audio');
+
+  var source = document.getElementById('audioSource');
+  var songname = document.getElementById('songname');
+  songname.textContent = file;
+  source.src = "static/songs/"+file+".mp3";
+
+  audio.load(); //call this to just preload the audio without playing
+  audio.play(); //call this to play the song right away
+}
+
+// Timer Functions
+function alarmUp(){
+    stopTimer();
+    const alarm = document.getElementById('alarmSound');
+    alarm.play();
+}
+
+function timerTick() {
+    timerSeconds++;
+    const hours = Math.floor(timerSeconds / 3600);
+    const minutes = Math.floor((timerSeconds % 3600) / 60);
+    const seconds = timerSeconds % 60;
+
+    const numberInput = document.getElementById('timeInput');
+    if(!numberInput.disabled){
+        const number = numberInput.value;
+        const unit = document.getElementById('unitSelect').value;
+
+        if(unit=='hour' && timerSeconds==number*3600){alarmUp();}
+        if(unit=='minute' && timerSeconds==number*60){alarmUp();}
+        if(unit=='second' && timerSeconds==number){alarmUp();}
+    }
+
+    document.getElementById('timerDisplay').textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+}
+
+function startTimer() {
+    timerInterval = setInterval(timerTick, 1000); // Update every second
+    document.getElementById('timerStart').disabled = true;
+    document.getElementById('timerStop').disabled = false;
+}
+
+function stopTimer() {
+    clearInterval(timerInterval);
+    document.getElementById('timerStart').disabled = false;
+    document.getElementById('timerStop').disabled = true;
+}
+
+function resetTimer() {
+    clearInterval(timerInterval);
+    timerSeconds = 0;
+    document.getElementById('timerDisplay').textContent = '00:00:00';
+    document.getElementById('timerStart').disabled = false;
+    document.getElementById('timerStop').disabled = true;
+}
+
+
+const checkbox = document.getElementById('alarmCheckbox');
+
+if (checkbox){
+    checkbox.addEventListener('change', () => {
+        document.getElementById('timeInput').disabled = !checkbox.checked;
+        document.getElementById('unitSelect').disabled = !checkbox.checked;
+    });
+}
+
+// Timer Variables
+let timerInterval;
+let timerSeconds = 0;
+
+const alarmSound = document.getElementById('alarmSound');
+if ( alarmSound ){
+    alarmSound.addEventListener("ended",function() {
+        alert("TIMER UP");
+    });
+}
+
+// Timer Button Event Listeners
+const timerStart = document.getElementById('timerStart');
+const timerStop = document.getElementById('timerStop');
+const timerReset = document.getElementById('timerReset');
+if(timerStart && timerStop && timerReset){
+    timerStart.addEventListener('click', startTimer);
+    timerStop.addEventListener('click', stopTimer);
+    timerReset.addEventListener('click', resetTimer);
+}
+
+function verifyWork(name){
+    fetch('/verify', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({'name':name})
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    response.json().then(data => {
+        if(data){
+            var element = document.getElementById("verify_"+name);
+            element.style = 'display:inline';
+            element = document.getElementById("verify_btn_"+name);
+            element.style = 'display:none';
+        }
+    });
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+}
+
+
+function updateMeasure(measure, name, amt){
+    fetch('/updateMeasure', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({'measure':measure,'name':name,'amt':amt})
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    response.json().then(data => {
+        if(data.updated){
+            var element = document.getElementById("cnt_"+measure+"_"+name);
+            element.textContent = data.count;
+        }
+    });
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+}
+
+function toggleElem(name, user, isDone){
+    if(!user){
+        const toggleContainer = document.getElementById("tc_"+name);
+        const toggle = document.getElementById("tog_"+name);
+        const toggleText = document.getElementById("tt_"+name);
+
+        toggle.classList.toggle('active');
+        isDone = toggle.classList.contains('active');
+        toggleText.textContent = isDone ? 'DONE' : 'To Do';
+        toggleContainer.style.backgroundColor = isDone ? '#0a0' : '#ccc';
+    } else {
+        const ncomp_elem = document.getElementById(name+"_"+user+"_ncom");
+        const comp_elem = document.getElementById(name+"_"+user+"_comp");
+        comp_elem.style.display = isDone ? 'none' : 'inline';
+        ncomp_elem.style.display = isDone ? 'inline' : 'none';
+    }
+
+    fetch('/toggle', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({'measure':name,'done':isDone, 'user': user})
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+}
+
+
+
+function toggleHelpElem(name, user, isDone){
+    const toggleContainer = document.getElementById("tc_"+name);
+    const toggle = document.getElementById("tog_"+name);
+    const toggleText = document.getElementById("tt_"+name);
+
+    toggle.classList.toggle('active');
+    isDone = toggle.classList.contains('active');
+    toggleText.textContent = isDone ? 'DONE' : 'Not Done';
+    toggleContainer.style.backgroundColor = isDone ? '#0a0' : '#ccc';
+
+    const ind = name.indexOf("_");
+    user = name.substring(0,ind);
+    name = name.substring(ind+1);
+
+    fetch('/toggle_help', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({'measure':name,'done':isDone, 'user': user})
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+}
+
+
+function toggleBadElem(name, user, isDone){
+    const toggleContainer = document.getElementById("tc_"+name);
+    const toggle = document.getElementById("tog_"+name);
+    const toggleText = document.getElementById("tt_"+name);
+
+    toggle.classList.toggle('active');
+    isDone = toggle.classList.contains('active');
+    toggleText.textContent = isDone ? 'BAD' : 'Good';
+    toggleContainer.style.backgroundColor = isDone ? '#a00' : '#0a0';
+
+    const ind = name.indexOf("_");
+    user = name.substring(0,ind);
+    name = name.substring(ind+1);
+
+    fetch('/toggle_bad', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({'measure':name,'done':isDone, 'user': user})
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+}
+
+
+
+document.addEventListener('DOMContentLoaded', function() {
+  // 1. Get references to all tab buttons and panels
+  const tabs = document.querySelectorAll('[role="tab"]');
+  const panels = document.querySelectorAll('[role="tabpanel"]');
+
+  // 2. Add click event listener to each tab button
+  tabs.forEach(tab => {
+    tab.addEventListener('click', handleTabClick);
+  });
+
+  /**
+   * Handles the click event on a tab button.
+   * @param {Event} event The click event object.
+   */
+  function handleTabClick(event) {
+    const clickedTab = event.currentTarget; // The tab button that was clicked
+    const targetPanelId = clickedTab.getAttribute('aria-controls'); // Get the ID of the panel to show
+    const targetPanel = document.getElementById(targetPanelId);
+
+    // --- Deactivate Current Active Tab/Panel ---
+
+    // Find the currently active tab and remove its active state
+    const currentActiveTab = document.querySelector('[role="tab"][aria-selected="true"]');
+    if (currentActiveTab) {
+      currentActiveTab.classList.remove('active');
+      currentActiveTab.setAttribute('aria-selected', 'false');
+
+      // Find the corresponding active panel and hide it
+      const currentPanelId = currentActiveTab.getAttribute('aria-controls');
+      const currentActivePanel = document.getElementById(currentPanelId);
+      if (currentActivePanel) {
+        currentActivePanel.classList.remove('active');
+        currentActivePanel.classList.add('hidden');
+      }
+    }
+
+    // --- Activate New Tab/Panel ---
+
+    // Set the clicked tab to active
+    clickedTab.classList.add('active');
+    clickedTab.setAttribute('aria-selected', 'true');
+
+    // Show the corresponding panel
+    if (targetPanel) {
+      targetPanel.classList.add('active');
+      targetPanel.classList.remove('hidden');
+    }
+  }
+});
+
+
+
+
+</script>
+  </body>
+</html>
